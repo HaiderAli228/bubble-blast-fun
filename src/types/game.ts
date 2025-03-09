@@ -8,6 +8,10 @@ export interface Bubble {
   col: number;
   isPopping?: boolean;
   isMoving?: boolean;
+  velocity?: {
+    x: number;
+    y: number;
+  };
 }
 
 export interface GameState {
@@ -20,4 +24,5 @@ export interface GameState {
   score: number;
   gameOver: boolean;
   level: number;
+  highScore?: number;
 }

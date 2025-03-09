@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Bubble from './Bubble';
 import Shooter from './Shooter';
-import GameInfo from './GameInfo';
 import { GameState, Bubble as BubbleType } from '../types/game';
 import {
   BUBBLE_SIZE,
@@ -18,6 +17,7 @@ import {
   generateId
 } from '../utils/gameUtils';
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 const BubbleGame: React.FC = () => {
   const { toast } = useToast();
@@ -140,6 +140,14 @@ const BubbleGame: React.FC = () => {
   
   const handleShoot = () => {
     if (shooting || gameState.gameOver) return;
+    
+    // Add shooting sound effect
+    const shootSound = new Audio('/shoot-sound.mp3');
+    shootSound.volume = 0.5;
+    shootSound.play().catch(() => {
+      // fallback silently if audio can't play
+      console.log('Audio playback failed');
+    });
     
     setShooting(true);
     
@@ -273,60 +281,78 @@ const BubbleGame: React.FC = () => {
   };
   
   const gameAreaWidth = GRID_COLS * BUBBLE_SIZE;
-  const gameAreaHeight = GRID_ROWS * BUBBLE_SIZE + 150; // Extra space for shooter
+  const gameAreaHeight = GRID_ROWS * BUBBLE_SIZE + 200; // Added space for shooter and button
   
   return (
-    <div 
-      ref={gameAreaRef}
-      className="relative game-background rounded-lg overflow-hidden shadow-2xl"
-      style={{ width: gameAreaWidth, height: gameAreaHeight }}
-    >
-      {/* Animated background elements */}
-      <div className="absolute w-6 h-6 rounded-full bg-blue-500/20 animate-float" 
-           style={{ top: '10%', left: '30%', animationDelay: '0s' }} />
-      <div className="absolute w-4 h-4 rounded-full bg-purple-500/20 animate-float" 
-           style={{ top: '20%', left: '70%', animationDelay: '0.5s' }} />
-      <div className="absolute w-8 h-8 rounded-full bg-green-500/20 animate-float" 
-           style={{ top: '50%', left: '80%', animationDelay: '1s' }} />
-      <div className="absolute w-5 h-5 rounded-full bg-yellow-500/20 animate-float" 
-           style={{ top: '70%', left: '20%', animationDelay: '1.5s' }} />
+    <div className="flex flex-col h-full">
+      {/* App Bar */}
+      <div className="bg-gray-900 p-4 flex justify-between items-center shadow-md border-b border-gray-700">
+        <div className="text-xl font-bold text-white">Bubble Blast</div>
+        <div className="flex gap-4">
+          <div className="bg-gray-800 px-4 py-2 rounded-lg">
+            <span className="text-gray-400 mr-2">Score:</span>
+            <span className="text-white font-bold">{gameState.score}</span>
+          </div>
+          <div className="bg-gray-800 px-4 py-2 rounded-lg">
+            <span className="text-gray-400 mr-2">Level:</span>
+            <span className="text-white font-bold">{gameState.level}</span>
+          </div>
+          {gameState.gameOver && (
+            <Button onClick={resetGame} variant="destructive" size="sm">
+              Play Again
+            </Button>
+          )}
+        </div>
+      </div>
       
-      {/* Game information */}
-      <GameInfo 
-        score={gameState.score} 
-        level={gameState.level} 
-        onRestart={resetGame}
-        gameOver={gameState.gameOver}
-      />
-      
-      {/* Render all bubbles */}
-      {gameState.bubbles.map(bubble => (
-        <Bubble key={bubble.id} bubble={bubble} />
-      ))}
-      
-      {/* Render the shooting bubble if active */}
-      {shootingBubble && (
-        <div
-          className={`absolute bubble bubble-${shootingBubble.color}`}
-          style={{
-            width: BUBBLE_SIZE,
-            height: BUBBLE_SIZE,
-            borderRadius: '50%',
-            left: shootingBubble.x,
-            top: shootingBubble.y,
-            zIndex: 5
-          }}
-        />
-      )}
-      
-      {/* Shooter component */}
-      <Shooter
-        color={gameState.activeBubble.color}
-        angle={gameState.activeBubble.angle}
-        onAngleChange={handleAngleChange}
-        onShoot={handleShoot}
-        nextBubble={gameState.nextBubble}
-      />
+      {/* Game Area */}
+      <div 
+        ref={gameAreaRef}
+        className="relative game-background rounded-lg overflow-hidden shadow-2xl flex-grow"
+        style={{ width: gameAreaWidth, height: gameAreaHeight }}
+      >
+        {/* Animated background elements */}
+        <div className="absolute w-6 h-6 rounded-full bg-blue-500/20 animate-float" 
+             style={{ top: '10%', left: '30%', animationDelay: '0s' }} />
+        <div className="absolute w-4 h-4 rounded-full bg-purple-500/20 animate-float" 
+             style={{ top: '20%', left: '70%', animationDelay: '0.5s' }} />
+        <div className="absolute w-8 h-8 rounded-full bg-green-500/20 animate-float" 
+             style={{ top: '50%', left: '80%', animationDelay: '1s' }} />
+        <div className="absolute w-5 h-5 rounded-full bg-yellow-500/20 animate-float" 
+             style={{ top: '70%', left: '20%', animationDelay: '1.5s' }} />
+        
+        {/* Render all bubbles */}
+        {gameState.bubbles.map(bubble => (
+          <Bubble key={bubble.id} bubble={bubble} />
+        ))}
+        
+        {/* Render the shooting bubble if active */}
+        {shootingBubble && (
+          <div
+            className={`absolute bubble bubble-${shootingBubble.color} shadow-lg`}
+            style={{
+              width: BUBBLE_SIZE,
+              height: BUBBLE_SIZE,
+              borderRadius: '50%',
+              left: shootingBubble.x,
+              top: shootingBubble.y,
+              zIndex: 5,
+              filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.5))'
+            }}
+          />
+        )}
+        
+        {/* Shooter component with button */}
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center">
+          <Shooter
+            color={gameState.activeBubble.color}
+            angle={gameState.activeBubble.angle}
+            onAngleChange={handleAngleChange}
+            onShoot={handleShoot}
+            nextBubble={gameState.nextBubble}
+          />
+        </div>
+      </div>
     </div>
   );
 };

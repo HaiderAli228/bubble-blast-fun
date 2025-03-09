@@ -2,6 +2,7 @@
 import React from 'react';
 import { BubbleColor } from '../types/game';
 import { BUBBLE_SIZE } from '../utils/gameUtils';
+import { Button } from "@/components/ui/button";
 
 interface ShooterProps {
   color: BubbleColor;
@@ -64,35 +65,44 @@ const Shooter: React.FC<ShooterProps> = ({
   };
   
   return (
-    <div 
-      className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
-      style={{ height: '150px', width: '150px' }}
-      onMouseMove={handleMouseMove}
-      onTouchMove={handleTouchMove}
-      onClick={onShoot}
-    >
-      {/* Shooter base */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gray-800 rounded-full" />
-      
-      {/* Shooter arm */}
+    <div className="shooter-container flex flex-col items-center">
       <div 
-        className="absolute bottom-8 left-1/2 h-20 w-2 bg-gray-700 origin-bottom transform -translate-x-1/2"
-        style={{ transform: `translateX(-50%) rotate(${angle}deg)` }}
+        className="relative bottom-0 left-1/2 transform -translate-x-1/2"
+        style={{ height: '150px', width: '150px' }}
+        onMouseMove={handleMouseMove}
+        onTouchMove={handleTouchMove}
       >
-        {/* Active bubble */}
-        <div className={`absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bubble bubble-${color}`}
-          style={{ width: BUBBLE_SIZE, height: BUBBLE_SIZE, borderRadius: '50%' }}
-        />
+        {/* Shooter base */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gray-800 rounded-full" />
+        
+        {/* Shooter arm */}
+        <div 
+          className="absolute bottom-8 left-1/2 h-20 w-2 bg-gray-700 origin-bottom transform -translate-x-1/2"
+          style={{ transform: `translateX(-50%) rotate(${angle}deg)` }}
+        >
+          {/* Active bubble */}
+          <div className={`absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bubble bubble-${color}`}
+            style={{ width: BUBBLE_SIZE, height: BUBBLE_SIZE, borderRadius: '50%' }}
+          />
+        </div>
+        
+        {/* Next bubble preview */}
+        <div className="absolute bottom-0 right-0 transform translate-x-16">
+          <div className="text-white text-xs mb-1">Next:</div>
+          <div 
+            className={`bubble bubble-${nextBubble}`}
+            style={{ width: BUBBLE_SIZE * 0.7, height: BUBBLE_SIZE * 0.7, borderRadius: '50%' }}
+          />
+        </div>
       </div>
       
-      {/* Next bubble preview */}
-      <div className="absolute bottom-0 right-0 transform translate-x-16">
-        <div className="text-white text-xs mb-1">Next:</div>
-        <div 
-          className={`bubble bubble-${nextBubble}`}
-          style={{ width: BUBBLE_SIZE * 0.7, height: BUBBLE_SIZE * 0.7, borderRadius: '50%' }}
-        />
-      </div>
+      {/* Shot button */}
+      <Button 
+        onClick={onShoot}
+        className="shot-button mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform transition-transform active:scale-95 animate-pulse"
+      >
+        SHOT
+      </Button>
     </div>
   );
 };

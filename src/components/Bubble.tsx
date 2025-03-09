@@ -22,6 +22,8 @@ const Bubble: React.FC<BubbleProps> = ({ bubble, onClick }) => {
         left: x,
         top: y,
         zIndex: isPopping ? 10 : 1,
+        filter: `drop-shadow(0 2px 3px rgba(0,0,0,0.3))${isPopping ? ' brightness(1.5)' : ''}`,
+        transition: 'transform 0.1s ease, filter 0.1s ease',
       }}
       onClick={onClick}
     />
